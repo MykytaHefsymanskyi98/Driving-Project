@@ -37,5 +37,11 @@ public class Car : MonoBehaviour
     {
         steerValue = value;
     }
-
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Obstacle")
+        {
+            FindObjectOfType<Sceneloader>().LoadGameOver();
+        }
+    }
 }
