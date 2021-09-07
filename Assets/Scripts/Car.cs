@@ -8,12 +8,14 @@ public class Car : MonoBehaviour
     [SerializeField] float turnSpeed = 300f;
 
     float moveSpeedDelta = 0.1f;
+    float timeDelay = 1f;
     int steerValue;
+    bool ableToMove;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        ableToMove = true;
     }
 
     // Update is called once per frame
@@ -24,14 +26,22 @@ public class Car : MonoBehaviour
     }
 
     void MoveForward()
-    {
-        moveSpeed += moveSpeedDelta * Time.deltaTime;
-        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+    {  
+        if(ableToMove)
+        {
+            moveSpeed += moveSpeedDelta * Time.deltaTime;
+            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+        }
+        else { return; }
     }
 
     void SteerCar()
     {
-        transform.Rotate(0f, steerValue * turnSpeed * Time.deltaTime, 0f);
+        if(ableToMove)
+        {
+            transform.Rotate(0f, steerValue * turnSpeed * Time.deltaTime, 0f);
+        }
+        else { return; }
     }
     public void SetSteerValue(int value)
     {
@@ -41,7 +51,28 @@ public class Car : MonoBehaviour
     {
         if(collision.gameObject.tag == "Obstacle")
         {
-            FindObjectOfType<Sceneloader>().LoadGameOver();
+            StartCoroutine(ObstacleHitCoroutine());
         }
+        if(collision.gameObject.tag =="Barrel")
+        {
+            StartCoroutine(BarrelHitCoroutine());
+        }
+    }
+
+    IEnumerator ObstacleHitCoroutine()
+    {
+        RemoveCarControl();
+        yield return new WaitForSeconds(timeDelay);
+        FindObjectOfType<Sceneloader>().LoadGameOver();
+    }
+    IEnumerator BarrelHitCoroutine()
+    {
+        yield return new WaitForSeconds(timeDelay);
+        FindObjectOfType<Sceneloader>().LoadGameOver();
+    }
+
+    void RemoveCarControl()
+    {
+        ableToMove = false;
     }
 }
